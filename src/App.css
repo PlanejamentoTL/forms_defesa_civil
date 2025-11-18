@@ -1,0 +1,334 @@
+/* ==============================================
+   BASE GLOBAL
+================================================*/
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: "Inter", system-ui, sans-serif;
+  background: transparent;
+}
+
+/* ==============================================
+   FUNDO COM FOTO + CENTRALIZAÇÃO DO CARD
+================================================*/
+.app-root {
+  min-height: 100vh;
+  width: 100vw;              /* garante que ocupe a largura inteira */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px;
+  box-sizing: border-box;
+  position: relative;
+
+  /* FOTO DE FUNDO */
+  background-image: url("/defesa-civil-foto.png");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+/* Overlay branco translúcido para legibilidade */
+.app-root::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.82);
+  pointer-events: none;
+  z-index: 0;
+} 
+
+/* Card fica acima do overlay */
+.card {
+  position: relative;
+  z-index: 1;
+}
+
+/* ==============================================
+   CARD PRINCIPAL
+================================================*/
+.card {
+  width: 650px;
+  max-width: 95%;
+  background: white;
+  border-radius: 22px;
+  padding: 28px 32px;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.15);
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ==============================================
+   CABEÇALHO (LOGO + TÍTULO)
+================================================*/
+.card-header {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 18px;
+  margin-bottom: 10px;
+}
+
+.logo-title-row {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 14px;
+}
+
+/* Ajuste para imagem da logo ficar proporcional */
+.logo {
+  height: 50px;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-img {
+  height: 70px;      /* tamanho ideal */
+  max-height: 70px;  /* impede crescer mais */
+  width: auto;
+  object-fit: contain;
+  display: block;
+}
+
+
+.logo-block {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+}
+
+.card-header h1 {
+  margin: 0;
+  font-size: 1.55rem;
+  color: #003B87; /* azul da Defesa Civil */
+  font-weight: 700;
+}
+
+.subtitle {
+  margin: 0;
+  margin-top: -4px;
+  color: #4d4d4d;
+  font-size: 0.90rem;
+}
+
+/* ==============================================
+   BARRA DE PROGRESSO
+================================================*/
+.progress {
+  width: 100%;
+  height: 6px;
+  background: #e6e6e6;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 12px 0 4px 0;
+}
+
+.progress-bar {
+  height: 100%;
+  background: linear-gradient(90deg, #FF6A00, #FF8B00); /* laranja DC */
+  transition: width 0.3s ease-in-out;
+}
+
+.progress-text {
+  font-size: 0.75rem;
+  margin-bottom: 12px;
+  color: #555;
+}
+
+/* ==============================================
+   PERGUNTA / STEP
+================================================*/
+.step-body {
+  text-align: left;
+}
+
+.step-body h2 {
+  margin: 10px 0 6px 0;
+  font-size: 1rem;          /* um pouco menor pra caber melhor */
+  font-weight: 700;
+  color: #222;
+
+  /* 👇 garante que o texto não quebre de linha */
+  white-space: nowrap;
+  overflow-x: auto;         /* se ficar grande demais, rola na horizontal */
+}
+
+
+
+.step-description {
+  margin: 0 0 14px 0;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* ==============================================
+   INPUTS E CAMPOS
+================================================*/
+.field input,
+.field textarea,
+.search-row input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 10px;
+  border: 1px solid #dcdcdc;
+  outline: none;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+}
+
+.field textarea {
+  resize: none;
+}
+
+.field input:focus,
+.field textarea:focus,
+.search-row input:focus {
+  border-color: #003B87;
+  box-shadow: 0 0 0 2px rgba(0, 59, 135, 0.18);
+}
+
+/* Checkboxes / Radios */
+/* Opções (radios e checkboxes) sempre em coluna, alinhadas à esquerda */
+.options {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+/* Mantido só por compatibilidade, mas igual às .options */
+.options-column {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+
+
+.options label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+  white-space: nowrap;      /* 👈 texto da opção sempre numa linha só */
+}
+
+
+/* ==============================================
+   BOTÕES
+================================================*/
+.nav-buttons {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 26px;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 10px 26px;
+  font-size: 0.95rem;
+  border-radius: 30px;
+  border: none;
+  cursor: pointer;
+  transition: 0.25s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Botão próximo (azul DC) */
+.btn-primary {
+  background: #003B87;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #0050b8;
+}
+
+/* Botão anterior (cinza) */
+.btn-secondary {
+  background: #f1f1f1;
+  color: #444;
+}
+
+.btn-secondary:hover {
+  background: #e1e1e1;
+}
+
+/* ==============================================
+   MAPA
+================================================*/
+.map-wrapper {
+  width: 100%;
+  height: 260px;
+  border-radius: 12px;
+  overflow: hidden;
+  margin-top: 14px;
+  border: 2px solid #ddd;
+}
+
+/* ==============================================
+   MOBILE RESPONSIVO
+================================================*/
+@media (max-width: 768px) {
+  .app-root {
+    padding: 12px;
+    background-attachment: scroll;
+  }
+
+  .card {
+    width: 100%;
+    max-width: 100%;
+    padding: 20px;
+    border-radius: 18px;
+  }
+
+  .card-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .logo {
+    height: 38px;
+  }
+
+  .step-body h2 {
+  white-space: normal !important;
+}
+
+  .options {
+  display: flex;
+  flex-direction: column !important;
+  gap: 8px;
+  width: 100%;
+}
+
+  .nav-buttons {
+    flex-direction: column-reverse;
+    gap: 10px;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    width: 100%;
+  }
+
+  .map-wrapper {
+    height: 220px;
+  }
+}
