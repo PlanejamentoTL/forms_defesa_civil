@@ -40,7 +40,7 @@ body,
   background: rgba(255, 255, 255, 0.82);
   pointer-events: none;
   z-index: 0;
-} 
+}
 
 /* Card fica acima do overlay */
 .card {
@@ -100,7 +100,6 @@ body,
   display: block;
 }
 
-
 .logo-block {
   display: flex;
   flex-direction: row;
@@ -159,12 +158,10 @@ body,
   font-weight: 700;
   color: #222;
 
-  /* 👇 garante que o texto não quebre de linha */
-  white-space: nowrap;
-  overflow-x: auto;         /* se ficar grande demais, rola na horizontal */
+  /* deixa o título quebrar normalmente, sem barra horizontal */
+  white-space: normal;
+  overflow: visible;
 }
-
-
 
 .step-description {
   margin: 0 0 14px 0;
@@ -198,34 +195,36 @@ body,
   box-shadow: 0 0 0 2px rgba(0, 59, 135, 0.18);
 }
 
-/* Checkboxes / Radios */
-/* Opções (radios e checkboxes) sempre em coluna, alinhadas à esquerda */
-.options {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 8px;
-}
-
-/* Mantido só por compatibilidade, mas igual às .options */
+/* ==============================================
+   OPÇÕES (RADIOS E CHECKBOXES)
+   – sempre em coluna, alinhadas à esquerda
+================================================*/
+.options,
 .options-column {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
+  align-items: flex-start;  /* tudo encostado à esquerda */
   gap: 8px;
 }
 
-
-
-.options label {
-  display: flex;
-  align-items: center;
-  gap: 6px;
+.options label,
+.options-column label {
+  display: inline-flex;      /* caixa “abraça” só o conteúdo */
+  flex-direction: row;
+  align-items: center;       /* bolinha alinhada com o meio do texto */
+  gap: 6px;                  /* espaço pequeno entre input e texto */
   font-size: 0.95rem;
   cursor: pointer;
-  white-space: nowrap;      /* 👈 texto da opção sempre numa linha só */
-}
+  line-height: 1.2;
+  white-space: nowrap;       /* 👈 texto SEMPRE em uma linha */
+} 
 
+.options input[type="checkbox"],
+.options input[type="radio"],
+.options-column input[type="checkbox"],
+.options-column input[type="radio"] {
+  margin-top: 2px;               /* ajusta alinhamento com textos longos */
+}
 
 /* ==============================================
    BOTÕES
@@ -308,15 +307,15 @@ body,
   }
 
   .step-body h2 {
-  white-space: normal !important;
-}
+    font-size: 0.95rem;
+    white-space: normal;
+  }
 
-  .options {
-  display: flex;
-  flex-direction: column !important;
-  gap: 8px;
-  width: 100%;
-}
+  .options,
+  .options-column {
+    width: 100%;
+    gap: 10px;
+  }
 
   .nav-buttons {
     flex-direction: column-reverse;

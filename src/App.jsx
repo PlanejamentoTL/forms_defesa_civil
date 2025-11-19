@@ -27,7 +27,10 @@ const defaultIcon = L.icon({
 const WEB_APP_URL =
   "https://script.google.com/macros/s/AKfycbxhn08VWd_Z_POVf6MkXeOgXaNLAW2bQBRmCegWYGs5qEsCQZi2OZyERpNVp2Tup46l_Q/exec";
 
-// Componente que captura clique no mapa e faz reverse geocode
+const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
+
+
+// Componente que captura clique no mapa e faz reverse geocode via proxy
 function LocationMarker({ onChangePosition, onChangeAddress }) {
   useMapEvents({
     click: async (e) => {
@@ -36,8 +39,12 @@ function LocationMarker({ onChangePosition, onChangeAddress }) {
       onChangePosition({ lat, lng });
 
       try {
-        const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${lat}&lon=${lng}`;
-        const res = await fetch(url);
+        const url = `${NOMINATIM_BASE}/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${lat}&lon=${lng}`;
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "defesa-civil-tres-lagoas-formulario"
+          }
+        });
         const data = await res.json();
         const addr = data.address || {};
 
@@ -162,83 +169,105 @@ export default function App() {
 
   // BOTÃO “USAR MINHA LOCALIZAÇÃO”
   function handleUseMyLocation() {
-    if (!navigator.geolocation) {
-      alert("Seu navegador não suporta geolocalização.");
-      return;
-    }
+  if (!navigator.geolocation) {
+    alert("Seu navegador não suporta geolocalização.");
+    return;
+  }
 
-    setLoadingEndereco(true);
+  setLoadingEndereco(true);
 
-    navigator.geolocation.getCurrentPosition(
-      async (pos) => {
-        const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+  navigator.geolocation.getCurrentPosition(
+    async (pos) => {
+      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
 
-        handleMapPositionChange({ lat, lng });
+      // Atualiza posição do mapa e grava lat/lon no form (para a planilha)
+      handleMapPositionChange({ lat, lng });
 
-        if (typeof accuracy === "number" && accuracy > 200) {
+      if (typeof accuracy === "number" && accuracy > 200) {
+        alert(
+          `Precisão baixa (~${Math.round(
+            accuracy
+          )}m). Ajuste clicando no mapa se necessário.`
+        );
+      }
+
+      try {
+        const url = `${NOMINATIM_BASE}/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${lat}&lon=${lng}`;
+        const res = await fetch(url, {
+          headers: {
+            "User-Agent": "defesa-civil-tres-lagoas-formulario"
+          }
+        });
+        const data = await res.json();
+        const addr = data.address || {};
+
+        const rua =
+          addr.road ||
+          addr.pedestrian ||
+          addr.residential ||
+          addr.footway ||
+          addr.path ||
+          "";
+        const numero = addr.house_number || "";
+        const bairro =
+          addr.neighbourhood ||
+          addr.suburb ||
+          addr.quarter ||
+          addr.hamlet ||
+          addr.district ||
+          "";
+        const cidade =
+          addr.city ||
+          addr.town ||
+          addr.village ||
+          addr.municipality ||
+          addr.county ||
+          "";
+        const cep = addr.postcode || "";
+
+        const partes = [];
+        if (rua) partes.push(rua);
+        if (numero) partes.push(numero);
+        if (bairro) partes.push(bairro);
+        if (cidade) partes.push(cidade);
+        if (cep) partes.push("CEP " + cep);
+
+        const enderecoFinal = partes.join(", ");
+
+        // 👉 SOMENTE endereço escrito vai para o campo de texto
+        if (enderecoFinal) {
+          handleEnderecoAproximadoChange(enderecoFinal);
+        } else {
+          // se por algum motivo não veio endereço completo,
+          // avisa o usuário para ajustar manualmente
           alert(
-            `Precisão baixa (~${Math.round(
-              accuracy
-            )}m). Ajuste clicando no mapa se necessário.`
+            'Não foi possível montar o endereço automaticamente. ' +
+              'Por favor, revise ou preencha o campo "Endereço aproximado".'
           );
         }
-
-        try {
-          const url = `https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${lat}&lon=${lng}`;
-          const res = await fetch(url);
-          const data = await res.json();
-          const addr = data.address || {};
-
-          const rua =
-            addr.road ||
-            addr.pedestrian ||
-            addr.residential ||
-            addr.footway ||
-            addr.path ||
-            "";
-          const numero = addr.house_number || "";
-          const bairro =
-            addr.neighbourhood ||
-            addr.suburb ||
-            addr.quarter ||
-            addr.hamlet ||
-            addr.district ||
-            "";
-          const cidade =
-            addr.city ||
-            addr.town ||
-            addr.village ||
-            addr.municipality ||
-            addr.county ||
-            "";
-          const cep = addr.postcode || "";
-
-          const partes = [];
-          if (rua) partes.push(rua);
-          if (numero) partes.push(numero);
-          if (bairro) partes.push(bairro);
-          if (cidade) partes.push(cidade);
-          if (cep) partes.push("CEP " + cep);
-
-          handleEnderecoAproximadoChange(partes.join(", "));
-        } catch (err) {
-          console.error("Erro no reverse geocode (geolocalização):", err);
-        } finally {
-          setLoadingEndereco(false);
-        }
-      },
-      (err) => {
-        console.error("Erro de geolocalização:", err);
-        alert("Não foi possível obter sua localização.");
+      } catch (err) {
+        console.error("Erro no reverse geocode (geolocalização):", err);
+        alert(
+          'Ocorreu um erro ao obter o endereço. ' +
+            'Por favor, preencha o campo "Endereço aproximado" manualmente.'
+        );
+      } finally {
         setLoadingEndereco(false);
-      },
-      {
-        enableHighAccuracy: true,
-        timeout: 15000,
-        maximumAge: 0,
       }
-    );
-  }
+    },
+    (err) => {
+      console.error("Erro de geolocalização:", err);
+      alert("Não foi possível obter sua localização.");
+      setLoadingEndereco(false);
+    },
+    {
+      enableHighAccuracy: true,
+      timeout: 15000,
+      maximumAge: 0,
+    }
+  );
+}
+
 
   // BUSCA POR TEXTO NO MAPA (preenche endereço também)
   async function buscarEnderecoNoMapa() {
@@ -250,10 +279,12 @@ export default function App() {
 
     try {
       setLoadingEndereco(true);
-      const url = `https://nominatim.openstreetmap.org/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(
-        q
-      )}`;
-      const res = await fetch(url);
+      const url = `${NOMINATIM_BASE}/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(q)}`;
+      const res = await fetch(url, {
+          headers: {
+            "User-Agent": "defesa-civil-tres-lagoas-formulario"
+          }
+        });
       const arr = await res.json();
       if (!arr || arr.length === 0) {
         alert("Endereço não encontrado. Tente ser mais específico.");
@@ -870,7 +901,7 @@ export default function App() {
         ),
       },
     ],
-    [form, buscaEndereco, mapPosition]
+    [form, buscaEndereco, mapPosition, loadingEndereco]
   );
 
   const totalSteps = steps.length;
@@ -884,11 +915,7 @@ export default function App() {
         <div className="card">
           <header className="card-header">
             <div className="logo-title-row">
-              <img
-                src="/logo-defesa-civil.png"
-                alt="Defesa Civil MS"
-                className="logo"
-              />
+              <img src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`} className="logo" />
               <div>
                 <h1>Defesa Civil – Três Lagoas</h1>
                 <p className="subtitle">
@@ -916,11 +943,7 @@ export default function App() {
       <div className="card">
         <header className="card-header">
           <div className="logo-title-row">
-            <img
-              src="/logo-defesa-civil.png"
-              alt="Defesa Civil MS"
-              className="logo"
-            />
+            <img src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`} className="logo" />
             <div>
               <h1>Defesa Civil – Três Lagoas</h1>
               <p className="subtitle">
