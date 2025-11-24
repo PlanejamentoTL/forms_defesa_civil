@@ -85,6 +85,15 @@ body,
   gap: 14px;
 }
 
+.logo-title-row h1 {
+  font-size: 1.1rem;   /* tamanho ideal */
+  font-weight: 600;     /* mantém presença sem ficar grosseiro */
+  margin: 0;            /* remove espaço desnecessário */
+  line-height: 1.2;     /* evita quebra estranha */
+  white-space: nowrap;  /* impede o texto de quebrar em duas linhas */
+}
+
+
 /* Ajuste para imagem da logo ficar proporcional */
 .logo {
   height: 50px;

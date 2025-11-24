@@ -25,7 +25,7 @@ const defaultIcon = L.icon({
 
 // URL do Apps Script (Web App /exec)
 const WEB_APP_URL =
-  "https://script.google.com/macros/s/AKfycbxhn08VWd_Z_POVf6MkXeOgXaNLAW2bQBRmCegWYGs5qEsCQZi2OZyERpNVp2Tup46l_Q/exec";
+  "https://script.google.com/macros/s/AKfycbyPYudJ5sjSDvWgskTDHdzo1T3ZmNB_5rMQQCIKO7wmHPP26_6dCxdkvcXH55mvwRBW9Q/exec";
 
 const NOMINATIM_BASE = "https://nominatim.openstreetmap.org";
 
@@ -113,6 +113,7 @@ export default function App() {
     latitude: "",
     longitude: "",
     enderecoAproximado: "",
+    fotos: [],
   });
 
   // posição inicial do mapa (Três Lagoas aproximado)
@@ -126,6 +127,49 @@ export default function App() {
   const [sending, setSending] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [sent, setSent] = useState(false);
+    // Detectar se está em dispositivo móvel
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent || ""
+  );
+
+  // Converte arquivos de imagem em base64 e guarda no form.fotos
+  async function handleFotosChange(e) {
+    const files = Array.from(e.target.files || []);
+    if (!files.length) return;
+
+    // helper para converter um arquivo em { nome, tipo, base64 }
+    const fileToBase64 = (file) =>
+      new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+          const result = reader.result || "";
+          // result vem como "data:image/jpeg;base64,AAAA..."
+          const parts = String(result).split(",");
+          resolve({
+            name: file.name,
+            type: file.type,
+            base64: parts[1] || "",
+          });
+        };
+        reader.onerror = (err) => reject(err);
+        reader.readAsDataURL(file);
+      });
+
+    try {
+      const converted = await Promise.all(files.map(fileToBase64));
+      setForm((prev) => ({
+        ...prev,
+        fotos: [...(prev.fotos || []), ...converted],
+      }));
+    } catch (err) {
+      console.error("Erro ao ler arquivos de imagem:", err);
+      alert("Não foi possível carregar as fotos. Tente novamente.");
+    } finally {
+      // limpa o input para permitir selecionar o mesmo arquivo de novo se quiser
+      e.target.value = "";
+    }
+  }
+
 
   // TELEFONE COM MÁSCARA
   function handlePhoneChange(e) {
@@ -373,29 +417,35 @@ export default function App() {
     setCurrentStep((s) => (s > 0 ? s - 1 : s));
   }
 
-  // SUBMIT FINAL
-  async function handleSubmit() {
-    if (!validateStep(currentStep)) {
-      alert("Preencha tudo antes de enviar.");
-      return;
-    }
-
-    try {
-      setSending(true);
-      await fetch(WEB_APP_URL, {
-        method: "POST",
-        mode: "no-cors",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
-      setSent(true);
-    } catch (err) {
-      alert("Erro ao enviar as respostas.");
-      console.error(err);
-    } finally {
-      setSending(false);
-    }
+ // SUBMIT FINAL
+async function handleSubmit() {
+  if (!validateStep(currentStep)) {
+    alert("Preencha tudo antes de enviar.");
+    return;
   }
+
+  try {
+    setSending(true);
+
+    // Envia TUDO (inclusive fotos em base64) como JSON
+    await fetch(WEB_APP_URL, {
+      method: "POST",
+      mode: "no-cors",                     // 👈 evita erro de CORS
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(form),          // 👈 JSON com respostas + fotos
+    });
+
+    // Como no-cors não permite ler a resposta, assumimos sucesso
+    setSent(true);
+  } catch (err) {
+    alert("Erro ao enviar as respostas.");
+    console.error(err);
+  } finally {
+    setSending(false);
+  }
+}
+
+
 
   // TODAS AS PERGUNTAS
   const steps = useMemo(
@@ -588,6 +638,56 @@ export default function App() {
             </>
           ),
       },
+      
+      {
+        id: "fotosIntercorrencia",
+        title: "5.1. Deseja enviar fotos do local da intercorrência?",
+        requiredFields: [],
+        content: (
+          <div className="field">
+            <p>
+              Você pode anexar fotos existentes do aparelho. Em dispositivos
+              móveis, também é possível tirar uma foto na hora.
+            </p>
+
+            <div className="field" style={{ marginTop: 12 }}>
+              <label>Enviar fotos (galeria / arquivos)</label>
+              <input
+                type="file"
+                accept="image/*"
+                multiple
+                onChange={handleFotosChange}
+              />
+            </div>
+
+            {isMobile && (
+              <div className="field" style={{ marginTop: 12 }}>
+                <label>Tirar foto agora (câmera)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  capture="environment"
+                  onChange={handleFotosChange}
+                />
+              </div>
+            )}
+
+            {form.fotos && form.fotos.length > 0 && (
+              <p
+                style={{
+                  fontSize: "0.85rem",
+                  marginTop: 8,
+                  color: "#555",
+                }}
+              >
+                {form.fotos.length} foto(s) será(ão) enviada(s) junto com suas
+                respostas.
+              </p>
+            )}
+          </div>
+        ),
+      },
+
 
       {
         id: "existeCorrego",
@@ -917,7 +1017,7 @@ export default function App() {
             <div className="logo-title-row">
               <img src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`} className="logo" />
               <div>
-                <h1>Defesa Civil – Três Lagoas</h1>
+                <h1>Prefeitura Municipal de Três Lagoas</h1>
                 <p className="subtitle">
                   Avaliação de drenagem urbana e impactos das chuvas.
                 </p>
@@ -945,7 +1045,7 @@ export default function App() {
           <div className="logo-title-row">
             <img src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`} className="logo" />
             <div>
-              <h1>Defesa Civil – Três Lagoas</h1>
+              <h1>Prefeitura Municipal de Três Lagoas</h1>
               <p className="subtitle">
                 Avaliação de drenagem urbana e impactos das chuvas.
               </p>
