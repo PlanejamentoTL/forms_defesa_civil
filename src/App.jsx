@@ -1066,35 +1066,49 @@ async function handleSubmit() {
         </main>
 
         <footer className="nav-buttons">
-          <button
-            type="button"
-            onClick={handlePrev}
-            className="btn-secondary"
-            disabled={currentStep === 0 || sending}
-          >
-            Anterior
-          </button>
+  {/* Botão ANTERIOR some visualmente na primeira pergunta */}
+  {currentStep === 0 ? (
+    // botão “fantasma” só pra manter o alinhamento do Próximo
+    <button
+      type="button"
+      className="btn-secondary"
+      style={{ visibility: "hidden" }}
+      disabled
+    >
+      Anterior
+    </button>
+  ) : (
+    <button
+      type="button"
+      onClick={handlePrev}
+      className="btn-secondary"
+      disabled={sending}
+    >
+      Anterior
+    </button>
+  )}
 
-          {currentStep < totalSteps - 1 ? (
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={handleNext}
-              disabled={sending || !validateStep(currentStep)}
-            >
-              Próximo
-            </button>
-          ) : (
-            <button
-              type="button"
-              className="btn-primary"
-              onClick={handleSubmit}
-              disabled={sending}
-            >
-              {sending ? "Enviando..." : "Enviar respostas"}
-            </button>
-          )}
-        </footer>
+  {currentStep < totalSteps - 1 ? (
+    <button
+      type="button"
+      className="btn-primary"
+      onClick={handleNext}
+      disabled={sending || !validateStep(currentStep)}
+    >
+      Próximo
+    </button>
+  ) : (
+    <button
+      type="button"
+      className="btn-primary"
+      onClick={handleSubmit}
+      disabled={sending}
+    >
+      {sending ? "Enviando..." : "Enviar respostas"}
+    </button>
+  )}
+</footer>
+
       </div>
     </div>
   );
