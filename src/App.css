@@ -1,6 +1,6 @@
 /* ==============================================
    BASE GLOBAL
-================================================*/
+================================================ */
 html,
 body,
 #root {
@@ -13,7 +13,7 @@ body,
 
 /* ==============================================
    FUNDO COM FOTO + CENTRALIZAÇÃO DO CARD
-================================================*/
+================================================ */
 .app-root {
   min-height: 100vh;
   width: 100vw;              /* garante que ocupe a largura inteira */
@@ -50,7 +50,7 @@ body,
 
 /* ==============================================
    CARD PRINCIPAL
-================================================*/
+================================================ */
 .card {
   width: 650px;
   max-width: 95%;
@@ -63,76 +63,86 @@ body,
 
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(10px); }
-  to { opacity: 1; transform: translateY(0); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
 /* ==============================================
-   CABEÇALHO (LOGO + TÍTULO)
-================================================*/
+   CABEÇALHO (LOGOS + TÍTULO)
+================================================ */
 .card-header {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: flex-start;
-  gap: 18px;
-  margin-bottom: 10px;
+  flex-direction: row;          /* logos e título na MESMA LINHA */
+  align-items: center;          /* alinha tudo verticalmente */
+  justify-content: flex-start;  /* tudo recuado à esquerda */
+  gap: 18px;                    /* espaço entre bloco de logos e bloco de texto */
+  margin-bottom: 14px;
 }
+
 
 .logo-title-row {
   display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 14px;
+  flex-direction: column;
+  align-items: flex-start;   /* título alinhado com as logos, à esquerda */
+  text-align: left;
 }
 
 .logo-title-row h1 {
-  font-size: 1.1rem;   /* tamanho ideal */
-  font-weight: 600;     /* mantém presença sem ficar grosseiro */
-  margin: 0;            /* remove espaço desnecessário */
-  line-height: 1.2;     /* evita quebra estranha */
-  white-space: nowrap;  /* impede o texto de quebrar em duas linhas */
+  font-size: 1.1rem;   /* mesmo tamanho que você já estava usando antes */
+  font-weight: 600;
+  margin: 0;
+  line-height: 1.25;
+  color: #003B87;      /* azul das logos */
 }
 
 
-/* Ajuste para imagem da logo ficar proporcional */
-.logo {
-  height: 50px;
-  width: auto;
-  object-fit: contain;
-}
-
-.logo-img {
-  height: 70px;      /* tamanho ideal */
-  max-height: 70px;  /* impede crescer mais */
-  width: auto;
-  object-fit: contain;
-  display: block;
-}
-
-.logo-block {
+/* Linha das duas logos à esquerda */
+.logo-row {
   display: flex;
   flex-direction: row;
   align-items: center;
-  gap: 12px;
+  justify-content: flex-start;  /* NÃO ocupa a linha toda */
+  gap: 8px;                     /* pequeno gap entre as duas logos (linha vermelha do print) */
 }
 
+
+.logo-left {
+  height: 67px;
+  width: auto;
+  object-fit: contain;
+}
+
+.logo-right {
+  height: 67px;
+  width: auto;
+  object-fit: contain;
+}
+
+/* Bloco de título + subtítulo */
+.title-block {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+/* TÍTULO – volta ao tamanho/cor original e alinhado às logos */
 .card-header h1 {
   margin: 0;
-  font-size: 1.55rem;
-  color: #003B87; /* azul da Defesa Civil */
+  font-size: 1.1rem;        /* tamanho “cheio” de desktop */
+  color: #003B87;            /* azul da Defesa Civil */
   font-weight: 700;
+  line-height: 1.25;
 }
 
 .subtitle {
   margin: 0;
-  margin-top: -4px;
+  margin-top: 2px;
   color: #4d4d4d;
-  font-size: 0.90rem;
+  font-size: 0.80rem;
 }
 
 /* ==============================================
    BARRA DE PROGRESSO
-================================================*/
+================================================ */
 .progress {
   width: 100%;
   height: 6px;
@@ -156,7 +166,7 @@ body,
 
 /* ==============================================
    PERGUNTA / STEP
-================================================*/
+================================================ */
 .step-body {
   text-align: left;
 }
@@ -180,7 +190,7 @@ body,
 
 /* ==============================================
    INPUTS E CAMPOS
-================================================*/
+================================================ */
 .field input,
 .field textarea,
 .search-row input {
@@ -206,8 +216,7 @@ body,
 
 /* ==============================================
    OPÇÕES (RADIOS E CHECKBOXES)
-   – sempre em coluna, alinhadas à esquerda
-================================================*/
+================================================ */
 .options,
 .options-column {
   display: flex;
@@ -225,19 +234,19 @@ body,
   font-size: 0.95rem;
   cursor: pointer;
   line-height: 1.2;
-  white-space: nowrap;       /* 👈 texto SEMPRE em uma linha */
-} 
+  white-space: nowrap;       /* no desktop, texto em uma linha */
+}
 
 .options input[type="checkbox"],
 .options input[type="radio"],
 .options-column input[type="checkbox"],
 .options-column input[type="radio"] {
-  margin-top: 2px;               /* ajusta alinhamento com textos longos */
+  margin-top: 2px;           /* ajusta alinhamento com textos longos */
 }
 
 /* ==============================================
    BOTÕES
-================================================*/
+================================================ */
 .nav-buttons {
   display: flex;
   justify-content: space-between;
@@ -279,7 +288,7 @@ body,
 
 /* ==============================================
    MAPA
-================================================*/
+================================================ */
 .map-wrapper {
   width: 100%;
   height: 260px;
@@ -291,8 +300,8 @@ body,
 
 /* ============================
    AJUSTES PARA MOBILE
-   ============================ */
-@media (max-width: 480px) {
+============================ */
+@media (max-width: 768px) {
 
   /* Remove qualquer overflow lateral */
   html, body {
@@ -300,7 +309,7 @@ body,
     overflow-x: hidden !important;
   }
 
-  /* Centraliza a card e garante largura correta */
+  /* Centraliza o card e garante largura correta */
   .app-root {
     padding: 0;
     display: flex;
@@ -315,57 +324,79 @@ body,
     box-sizing: border-box;
   }
 
-  /* Força o bloco de logo + título a ficar em coluna */
+  
+  .card-header {
+    flex-direction: row;       /* empilha logos em cima e título embaixo */
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .logo-row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: flex-start;  /* NÃO ocupa a linha toda */
+    gap: 8px;                     /* pequeno gap entre as duas logos (linha vermelha do print) */
+    margin-top: 12px;
+  }
+
   .logo-title-row {
     display: flex;
-    flex-direction: column !important;
-    align-items: center !important;
-    text-align: center !important;
-    gap: 6px !important;
-    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;   /* título alinhado com as logos, à esquerda */
+    text-align: left;
   }
 
-  /* Reduz a logo */
-  .logo {
-    width: 75px !important;
-    height: auto;
+  .logo-title-row h1 {
+    font-size: 0.80rem;
   }
 
-  /* Ajusta o título para caber SEM VAZAR */
+  .logo-left,
+  .logo-right {
+    height: 50px;   /* logos um pouco menores, mas visíveis */
+  }
+
   .card-header h1 {
-    font-size: 1.15rem !important;
-    line-height: 1.25 !important;
-    word-break: break-word !important;
-    max-width: 100% !important;
-    margin: 0 auto !important;
-  }
-
-  /* Ajusta subtítulo */
-  .subtitle {
-    font-size: 0.85rem !important;
+    font-size: 0.80rem !important;  /* um pouco menor para caber bem */
     line-height: 1.3 !important;
-    word-break: break-word;
-    max-width: 90% !important;
-    margin: 0 auto !important;
-    text-align: center !important;
+    max-width: 100% !important;
+    margin: 0 !important;
   }
 
-  /* Botões */
+  .subtitle {
+    font-size: 0.70rem;
+  }
+
+  .options,
+  .options-column {
+    width: 100%;
+    gap: 10px;
+  }
+
+  /* no mobile, permitir quebra de linha nas opções */
+  .options label,
+  .options-column label {
+    width: auto;
+    white-space: nowrap;
+  }
+
   .nav-buttons {
-    flex-direction: column !important;
-    gap: 12px !important;
+    flex-direction: column;
+    gap: 10px;
   }
 
   .btn-primary,
   .btn-secondary {
-    width: 100% !important;
-    font-size: 1rem !important;
+    width: 100%;
+    font-size: 1rem;
   }
 
-  /* Ajusta padding interno do step-body */
   .step-body {
-    padding: 0 4px !important;
-    text-align: left !important;
+    padding: 0 4px;
+    text-align: left;
+  }
+
+  .map-wrapper {
+    height: 220px;
   }
 }
-

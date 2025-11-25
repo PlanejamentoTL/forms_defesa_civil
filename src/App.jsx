@@ -127,7 +127,7 @@ export default function App() {
   const [sending, setSending] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
   const [sent, setSent] = useState(false);
-    // Detectar se está em dispositivo móvel
+  // Detectar se está em dispositivo móvel
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
     navigator.userAgent || ""
   );
@@ -213,104 +213,104 @@ export default function App() {
 
   // BOTÃO “USAR MINHA LOCALIZAÇÃO”
   function handleUseMyLocation() {
-  if (!navigator.geolocation) {
-    alert("Seu navegador não suporta geolocalização.");
-    return;
-  }
+    if (!navigator.geolocation) {
+      alert("Seu navegador não suporta geolocalização.");
+      return;
+    }
 
-  setLoadingEndereco(true);
+    setLoadingEndereco(true);
 
-  navigator.geolocation.getCurrentPosition(
-    async (pos) => {
-      const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lng, accuracy } = pos.coords;
 
-      // Atualiza posição do mapa e grava lat/lon no form (para a planilha)
-      handleMapPositionChange({ lat, lng });
+        // Atualiza posição do mapa e grava lat/lon no form (para a planilha)
+        handleMapPositionChange({ lat, lng });
 
-      if (typeof accuracy === "number" && accuracy > 200) {
-        alert(
-          `Precisão baixa (~${Math.round(
-            accuracy
-          )}m). Ajuste clicando no mapa se necessário.`
-        );
-      }
-
-      try {
-        const url = `${NOMINATIM_BASE}/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${lat}&lon=${lng}`;
-        const res = await fetch(url, {
-          headers: {
-            "User-Agent": "defesa-civil-tres-lagoas-formulario"
-          }
-        });
-        const data = await res.json();
-        const addr = data.address || {};
-
-        const rua =
-          addr.road ||
-          addr.pedestrian ||
-          addr.residential ||
-          addr.footway ||
-          addr.path ||
-          "";
-        const numero = addr.house_number || "";
-        const bairro =
-          addr.neighbourhood ||
-          addr.suburb ||
-          addr.quarter ||
-          addr.hamlet ||
-          addr.district ||
-          "";
-        const cidade =
-          addr.city ||
-          addr.town ||
-          addr.village ||
-          addr.municipality ||
-          addr.county ||
-          "";
-        const cep = addr.postcode || "";
-
-        const partes = [];
-        if (rua) partes.push(rua);
-        if (numero) partes.push(numero);
-        if (bairro) partes.push(bairro);
-        if (cidade) partes.push(cidade);
-        if (cep) partes.push("CEP " + cep);
-
-        const enderecoFinal = partes.join(", ");
-
-        // 👉 SOMENTE endereço escrito vai para o campo de texto
-        if (enderecoFinal) {
-          handleEnderecoAproximadoChange(enderecoFinal);
-        } else {
-          // se por algum motivo não veio endereço completo,
-          // avisa o usuário para ajustar manualmente
+        if (typeof accuracy === "number" && accuracy > 200) {
           alert(
-            'Não foi possível montar o endereço automaticamente. ' +
-              'Por favor, revise ou preencha o campo "Endereço aproximado".'
+            `Precisão baixa (~${Math.round(
+              accuracy
+            )}m). Ajuste clicando no mapa se necessário.`
           );
         }
-      } catch (err) {
-        console.error("Erro no reverse geocode (geolocalização):", err);
-        alert(
-          'Ocorreu um erro ao obter o endereço. ' +
+
+        try {
+          const url = `${NOMINATIM_BASE}/reverse?format=jsonv2&addressdetails=1&zoom=18&lat=${lat}&lon=${lng}`;
+          const res = await fetch(url, {
+            headers: {
+              "User-Agent": "defesa-civil-tres-lagoas-formulario"
+            }
+          });
+          const data = await res.json();
+          const addr = data.address || {};
+
+          const rua =
+            addr.road ||
+            addr.pedestrian ||
+            addr.residential ||
+            addr.footway ||
+            addr.path ||
+            "";
+          const numero = addr.house_number || "";
+          const bairro =
+            addr.neighbourhood ||
+            addr.suburb ||
+            addr.quarter ||
+            addr.hamlet ||
+            addr.district ||
+            "";
+          const cidade =
+            addr.city ||
+            addr.town ||
+            addr.village ||
+            addr.municipality ||
+            addr.county ||
+            "";
+          const cep = addr.postcode || "";
+
+          const partes = [];
+          if (rua) partes.push(rua);
+          if (numero) partes.push(numero);
+          if (bairro) partes.push(bairro);
+          if (cidade) partes.push(cidade);
+          if (cep) partes.push("CEP " + cep);
+
+          const enderecoFinal = partes.join(", ");
+
+          // 👉 SOMENTE endereço escrito vai para o campo de texto
+          if (enderecoFinal) {
+            handleEnderecoAproximadoChange(enderecoFinal);
+          } else {
+            // se por algum motivo não veio endereço completo,
+            // avisa o usuário para ajustar manualmente
+            alert(
+              'Não foi possível montar o endereço automaticamente. ' +
+              'Por favor, revise ou preencha o campo "Endereço aproximado".'
+            );
+          }
+        } catch (err) {
+          console.error("Erro no reverse geocode (geolocalização):", err);
+          alert(
+            'Ocorreu um erro ao obter o endereço. ' +
             'Por favor, preencha o campo "Endereço aproximado" manualmente.'
-        );
-      } finally {
+          );
+        } finally {
+          setLoadingEndereco(false);
+        }
+      },
+      (err) => {
+        console.error("Erro de geolocalização:", err);
+        alert("Não foi possível obter sua localização.");
         setLoadingEndereco(false);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 15000,
+        maximumAge: 0,
       }
-    },
-    (err) => {
-      console.error("Erro de geolocalização:", err);
-      alert("Não foi possível obter sua localização.");
-      setLoadingEndereco(false);
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 15000,
-      maximumAge: 0,
-    }
-  );
-}
+    );
+  }
 
 
   // BUSCA POR TEXTO NO MAPA (preenche endereço também)
@@ -325,10 +325,10 @@ export default function App() {
       setLoadingEndereco(true);
       const url = `${NOMINATIM_BASE}/search?format=jsonv2&limit=1&addressdetails=1&q=${encodeURIComponent(q)}`;
       const res = await fetch(url, {
-          headers: {
-            "User-Agent": "defesa-civil-tres-lagoas-formulario"
-          }
-        });
+        headers: {
+          "User-Agent": "defesa-civil-tres-lagoas-formulario"
+        }
+      });
       const arr = await res.json();
       if (!arr || arr.length === 0) {
         alert("Endereço não encontrado. Tente ser mais específico.");
@@ -417,33 +417,33 @@ export default function App() {
     setCurrentStep((s) => (s > 0 ? s - 1 : s));
   }
 
- // SUBMIT FINAL
-async function handleSubmit() {
-  if (!validateStep(currentStep)) {
-    alert("Preencha tudo antes de enviar.");
-    return;
+  // SUBMIT FINAL
+  async function handleSubmit() {
+    if (!validateStep(currentStep)) {
+      alert("Preencha tudo antes de enviar.");
+      return;
+    }
+
+    try {
+      setSending(true);
+
+      // Envia TUDO (inclusive fotos em base64) como JSON
+      await fetch(WEB_APP_URL, {
+        method: "POST",
+        mode: "no-cors",                     // 👈 evita erro de CORS
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(form),          // 👈 JSON com respostas + fotos
+      });
+
+      // Como no-cors não permite ler a resposta, assumimos sucesso
+      setSent(true);
+    } catch (err) {
+      alert("Erro ao enviar as respostas.");
+      console.error(err);
+    } finally {
+      setSending(false);
+    }
   }
-
-  try {
-    setSending(true);
-
-    // Envia TUDO (inclusive fotos em base64) como JSON
-    await fetch(WEB_APP_URL, {
-      method: "POST",
-      mode: "no-cors",                     // 👈 evita erro de CORS
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(form),          // 👈 JSON com respostas + fotos
-    });
-
-    // Como no-cors não permite ler a resposta, assumimos sucesso
-    setSent(true);
-  } catch (err) {
-    alert("Erro ao enviar as respostas.");
-    console.error(err);
-  } finally {
-    setSending(false);
-  }
-}
 
 
 
@@ -492,7 +492,7 @@ async function handleSubmit() {
       },
       {
         id: "estaNoLocal",
-        title: "4. Você está no local da intercorrência?",
+        title: "4. Você está no local do problema?",
         requiredFields: ["estaNoLocal"],
         content: (
           <div className="options">
@@ -513,7 +513,7 @@ async function handleSubmit() {
       },
       {
         id: "localizacao",
-        title: "5. Localização da intercorrência",
+        title: "5. Localização do Problema",
         requiredFields: [],
         content:
           !form.estaNoLocal ? (
@@ -638,10 +638,10 @@ async function handleSubmit() {
             </>
           ),
       },
-      
+
       {
         id: "fotosIntercorrencia",
-        title: "5.1. Deseja enviar fotos do local da intercorrência?",
+        title: "5.1. Deseja enviar fotos do local do problema?",
         requiredFields: [],
         content: (
           <div className="field">
@@ -843,7 +843,7 @@ async function handleSubmit() {
               "Enxurradas",
               "Alagamentos",
               "Entrada de água em residências ou comércios",
-              "Transbordamento de bacias de contenção (piscinões)",
+              "Transbordamento de bacias de contenção",
               "Deslizamento ou risco estrutural",
               "Danos em calçadas ou no asfalto",
               "Nenhum problema",
@@ -1014,16 +1014,29 @@ async function handleSubmit() {
       <div className="app-root">
         <div className="card">
           <header className="card-header">
+            {/* BLOCO DAS LOGOS */}
+            <div className="logo-row">
+              <img
+                src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`}
+                className="logo-left"
+                alt="Defesa Civil"
+              />
+              <img
+                src={`${import.meta.env.BASE_URL}logo-prefeitura.png`}
+                className="logo-right"
+                alt="Prefeitura Municipal de Três Lagoas"
+              />
+            </div>
+
+            {/* BLOCO DO TÍTULO + SUBTÍTULO (NA MESMA LINHA DAS LOGOS) */}
             <div className="logo-title-row">
-              <img src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`} className="logo" />
-              <div>
-                <h1>Prefeitura Municipal de Três Lagoas</h1>
-                <p className="subtitle">
-                  Avaliação de drenagem urbana e impactos das chuvas.
-                </p>
-              </div>
+              <h1>Formulário de avaliação de drenagem urbana e impactos das chuvas</h1>
+              <p className="subtitle">
+                Prefeitura Municipal de Três Lagoas – Defesa Civil
+              </p>
             </div>
           </header>
+
 
           <main className="step-body">
             <h2 style={{ textAlign: "center", marginTop: "24px" }}>
@@ -1042,16 +1055,29 @@ async function handleSubmit() {
     <div className="app-root">
       <div className="card">
         <header className="card-header">
+          {/* BLOCO DAS LOGOS */}
+          <div className="logo-row">
+            <img
+              src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`}
+              className="logo-left"
+              alt="Defesa Civil"
+            />
+            <img
+              src={`${import.meta.env.BASE_URL}logo-prefeitura.png`}
+              className="logo-right"
+              alt="Prefeitura Municipal de Três Lagoas"
+            />
+          </div>
+
+          {/* BLOCO DO TÍTULO + SUBTÍTULO (NA MESMA LINHA DAS LOGOS) */}
           <div className="logo-title-row">
-            <img src={`${import.meta.env.BASE_URL}logo-defesa-civil.png`} className="logo" />
-            <div>
-              <h1>Prefeitura Municipal de Três Lagoas</h1>
-              <p className="subtitle">
-                Avaliação de drenagem urbana e impactos das chuvas.
-              </p>
-            </div>
+            <h1>Formulário de avaliação de drenagem urbana e impactos das chuvas</h1>
+            <p className="subtitle">
+              Prefeitura Municipal de Três Lagoas – Defesa Civil
+            </p>
           </div>
         </header>
+
 
         <div className="progress">
           <div
@@ -1066,48 +1092,48 @@ async function handleSubmit() {
         </main>
 
         <footer className="nav-buttons">
-  {/* Botão ANTERIOR some visualmente na primeira pergunta */}
-  {currentStep === 0 ? (
-    // botão “fantasma” só pra manter o alinhamento do Próximo
-    <button
-      type="button"
-      className="btn-secondary"
-      style={{ visibility: "hidden" }}
-      disabled
-    >
-      Anterior
-    </button>
-  ) : (
-    <button
-      type="button"
-      onClick={handlePrev}
-      className="btn-secondary"
-      disabled={sending}
-    >
-      Anterior
-    </button>
-  )}
+          {/* Botão ANTERIOR some visualmente na primeira pergunta */}
+          {currentStep === 0 ? (
+            // botão “fantasma” só pra manter o alinhamento do Próximo
+            <button
+              type="button"
+              className="btn-secondary"
+              style={{ visibility: "hidden" }}
+              disabled
+            >
+              Anterior
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={handlePrev}
+              className="btn-secondary"
+              disabled={sending}
+            >
+              Anterior
+            </button>
+          )}
 
-  {currentStep < totalSteps - 1 ? (
-    <button
-      type="button"
-      className="btn-primary"
-      onClick={handleNext}
-      disabled={sending || !validateStep(currentStep)}
-    >
-      Próximo
-    </button>
-  ) : (
-    <button
-      type="button"
-      className="btn-primary"
-      onClick={handleSubmit}
-      disabled={sending}
-    >
-      {sending ? "Enviando..." : "Enviar respostas"}
-    </button>
-  )}
-</footer>
+          {currentStep < totalSteps - 1 ? (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleNext}
+              disabled={sending || !validateStep(currentStep)}
+            >
+              Próximo
+            </button>
+          ) : (
+            <button
+              type="button"
+              className="btn-primary"
+              onClick={handleSubmit}
+              disabled={sending}
+            >
+              {sending ? "Enviando..." : "Enviar respostas"}
+            </button>
+          )}
+        </footer>
 
       </div>
     </div>
